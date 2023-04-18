@@ -1,9 +1,10 @@
 import axios from 'axios';
+import dayjs from 'dayjs';
 
 import { runPipelines } from './pipeline.service';
 
 it('pipeline', async () => {
-    return runPipelines({ start: '2022-01-01', end: '2023-01-01' })
+    return runPipelines({ start: dayjs('2022-01-01'), end: dayjs('2023-01-01') })
         .then((results) => {
             console.log(results);
             results.forEach((result) => {
