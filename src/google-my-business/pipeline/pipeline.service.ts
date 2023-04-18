@@ -1,4 +1,4 @@
-import { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 
 import { load } from '../../bigquery/bigquery.service';
 import { getAuthClient } from '../auth/auth.service';
@@ -8,8 +8,8 @@ import { getReviews } from '../review/review.service';
 import { locationSchema, insightSchema, reviewSchema } from './pipeline.schema';
 
 export type RunPipelinesOptions = {
-    start: Dayjs;
-    end: Dayjs;
+    start: string;
+    end: string;
 };
 
 export const runPipelines = async ({ start, end }: RunPipelinesOptions) => {
@@ -22,7 +22,7 @@ export const runPipelines = async ({ start, end }: RunPipelinesOptions) => {
             locations.map(({ name }) => {
                 const [_, locationId] = name.split('/');
 
-                return getInsights(client, { locationId, start, end });
+                return getInsights(client, { locationId, start: dayjs(start), end: dayjs(end) });
             }),
         ).then((data) => data.flat());
 
