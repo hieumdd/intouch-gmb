@@ -45,7 +45,7 @@ jobs:
           --region=us-central1
           --timeout=530
           --memory=1024MB
-          --runtime=nodejs16
+          --runtime=nodejs18
           --trigger-http
           --no-user-output-enabled
           --service-account=${{ env.GCP_SA }}
