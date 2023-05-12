@@ -14,10 +14,7 @@ type LocationsResponse = {
     locations: Location[];
 };
 
-export const getLocations = (
-    client: AxiosInstance,
-    { accountId }: GetLocationsOptions,
-) => {
+export const getLocations = (client: AxiosInstance, { accountId }: GetLocationsOptions) => {
     const get = async (pageToken?: string): Promise<Location[]> => {
         const { data } = await client.request<LocationsResponse>({
             url: `https://mybusinessbusinessinformation.googleapis.com/v1/accounts/${accountId}/locations`,
@@ -27,11 +24,9 @@ export const getLocations = (
                 pageToken,
             },
         });
-        const { nextPageToken, locations } = data;
+        const { nextPageToken, locations = [] } = data;
 
-        return nextPageToken
-            ? [...locations, ...(await get(nextPageToken))]
-            : locations;
+        return nextPageToken ? [...locations, ...(await get(nextPageToken))] : locations;
     };
 
     return get();

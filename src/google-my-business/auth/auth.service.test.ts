@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { getToken } from './auth.service';
+import { getToken, getAuthClient } from './auth.service';
 
 it('get-token', async () => {
     return getToken()
@@ -12,4 +12,19 @@ it('get-token', async () => {
             axios.isAxiosError(error) && console.log(error.response?.data);
             return Promise.reject(error);
         });
+});
+
+it('get-accounts', async () => {
+    return getAuthClient().then((client) => {
+        return client
+            .request({
+                method: 'GET',
+                url: 'https://mybusinessaccountmanagement.googleapis.com/v1/accounts',
+            })
+            .then((response) => response.data)
+            .then((data) => {
+                console.log({ data });
+                expect(data).toBeDefined();
+            });
+    });
 });
