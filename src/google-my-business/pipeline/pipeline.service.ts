@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 
-import { load } from '../../bigquery/bigquery.service';
+import { insert, load } from '../../bigquery/bigquery.service';
 import { createTask } from '../../cloud-tasks/cloud-tasks.service';
 import { getAuthClient } from '../auth/auth.service';
 import { getLocations } from '../location/location.service';
@@ -106,7 +106,7 @@ export const insightPipeline = async (options: InsightPipelineOptions) => {
         end: dayjs(end),
     });
 
-    return load(insights, { table: `Insight__${accountId}`, schema: insightSchema }).then(
+    return insert(insights, { table: `Insight__${accountId}`, schema: insightSchema }).then(
         () => insights.length,
     );
 };
@@ -121,7 +121,7 @@ export const reviewPipeline = async ({ accountId, location }: ReviewPipelineOpti
 
     const reviews = await getReviews(client, { accountId, location });
 
-    return load(reviews, { table: `Review__${accountId}`, schema: reviewSchema }).then(
+    return insert(reviews, { table: `Review__${accountId}`, schema: reviewSchema }).then(
         () => reviews.length,
     );
 };
