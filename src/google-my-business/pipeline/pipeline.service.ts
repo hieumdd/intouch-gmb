@@ -1,11 +1,13 @@
 import dayjs from 'dayjs';
 
 import { load } from '../../bigquery/bigquery.service';
+import { createTask } from '../../cloud-tasks/cloud-tasks.service';
 import { getAuthClient } from '../auth/auth.service';
 import { getLocations } from '../location/location.service';
 import { getInsights } from '../insight/insight.service';
 import { getReviews } from '../review/review.service';
 import { locationSchema, insightSchema, reviewSchema } from './pipeline.schema';
+import { INSIGHT_ROUTE, REVIEW_ROUTE } from '../../route.const';
 
 export const ACCOUNT_IDS = [
     '108410633950303010387',
@@ -43,42 +45,83 @@ export const ACCOUNT_IDS = [
     '117258147294478852396',
     '116471768159485451813',
 ];
-export type RunPipelinesOptions = {
+
+export type LocationPipelineOptions = {
     start: string;
     end: string;
 };
 
-export const runPipelines = async ({ start, end }: RunPipelinesOptions) => {
+export const locationPipeline = async ({ start, end }: LocationPipelineOptions) => {
     const client = await getAuthClient();
 
-    const runPipeline = async (accountId: string) => {
-        const locations = await getLocations(client, { accountId });
+    return Promise.all(
+        ACCOUNT_IDS.map(async (accountId) => {
+            const locations = await getLocations(client, { accountId });
 
-        const insights = await Promise.all(
-            locations.map(({ name }) => {
-                const [_, locationId] = name.split('/');
+            const createTasksPromise = [
+                ...locations.map(({ name }) => {
+                    const [_, locationId] = name.split('/');
+                    return createTask(
+                        INSIGHT_ROUTE,
+                        { accountId, locationId, start, end },
+                        ({ accountId, locationId }) => ['INSIGHT', accountId, locationId].join('-'),
+                    );
+                }),
+                ...locations.map(({ name: location }) => {
+                    return createTask(
+                        REVIEW_ROUTE,
+                        { accountId, location },
+                        ({ accountId, location }) => {
+                            const [_, locationId] = location.split('/');
+                            return ['REVIEW', accountId, locationId].join('-');
+                        },
+                    );
+                }),
+            ];
 
-                return getInsights(client, { locationId, start: dayjs(start), end: dayjs(end) });
-            }),
-        ).then((data) => data.flat());
+            return [
+                locations,
+                createTasksPromise,
+                load(locations, { table: `Location__${accountId}`, schema: locationSchema }),
+            ];
+        }),
+    ).then(([locations]) => locations.length);
+};
 
-        const reviews = await Promise.all(
-            locations.map((location) => {
-                return getReviews(client, { accountId, locationId: location.name });
-            }),
-        ).then((locationReviews) => locationReviews.flat());
+export type InsightPipelineOptions = {
+    accountId: string;
+    locationId: string;
+    start: string;
+    end: string;
+};
 
-        return Promise.all([
-            load(locations, { table: `Location__${accountId}`, schema: locationSchema }),
-            load(insights, { table: `Insight__${accountId}`, schema: insightSchema }),
-            load(reviews, { table: `Review__${accountId}`, schema: reviewSchema }),
-        ]).then(() => ({
-            accountId,
-            location: locations.length,
-            insight: insights.length,
-            review: reviews.length,
-        }));
-    };
+export const insightPipeline = async (options: InsightPipelineOptions) => {
+    const { accountId, locationId, start, end } = options;
 
-    return Promise.all(ACCOUNT_IDS.map((accountId) => runPipeline(accountId)));
+    const client = await getAuthClient();
+
+    const insights = await getInsights(client, {
+        locationId,
+        start: dayjs(start),
+        end: dayjs(end),
+    });
+
+    return load(insights, { table: `Insight__${accountId}`, schema: insightSchema }).then(
+        () => insights.length,
+    );
+};
+
+export type ReviewPipelineOptions = {
+    accountId: string;
+    locationId: string;
+};
+
+export const reviewPipeline = async ({ accountId, locationId }: ReviewPipelineOptions) => {
+    const client = await getAuthClient();
+
+    const reviews = await getReviews(client, { accountId, locationId });
+
+    return load(reviews, { table: `Review__${accountId}`, schema: reviewSchema }).then(
+        () => reviews.length,
+    );
 };

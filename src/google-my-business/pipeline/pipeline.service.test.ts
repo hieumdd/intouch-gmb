@@ -1,19 +1,47 @@
-import axios from 'axios';
+import { locationPipeline, insightPipeline, reviewPipeline } from './pipeline.service';
 
-import { runPipelines } from './pipeline.service';
+describe('pipeline', () => {
+    it('pipeline/location', async () => {
+        const options = { start: '2023-01-01', end: '2024-01-01' };
 
-it('pipeline', async () => {
-    return runPipelines({ start: '2023-01-01', end: '2024-01-01' })
-        .then((results) => {
-            console.log(results);
-            results.forEach((result) => {
-                expect(result.location).toBeGreaterThanOrEqual(0);
-                expect(result.insight).toBeGreaterThanOrEqual(0);
-                expect(result.review).toBeGreaterThanOrEqual(0);
+        return locationPipeline(options)
+            .then((result) => {
+                expect(result).toBeGreaterThanOrEqual(0);
+            })
+            .catch((error) => {
+                return Promise.reject(error);
             });
-        })
-        .catch((error) => {
-            axios.isAxiosError(error) && console.log(error.response?.data);
-            return Promise.reject(error);
-        });
+    });
+
+    it('pipeline/insight', async () => {
+        const options = {
+            accountId: '108405109682017952426',
+            locationId: '16151841337430804192',
+            start: '2023-01-01',
+            end: '2024-01-01',
+        };
+
+        return insightPipeline(options)
+            .then((result) => {
+                expect(result).toBeGreaterThanOrEqual(0);
+            })
+            .catch((error) => {
+                return Promise.reject(error);
+            });
+    });
+
+    it('pipeline/review', async () => {
+        const options = {
+            accountId: '108405109682017952426',
+            locationId: 'locations/16151841337430804192',
+        };
+
+        return reviewPipeline(options)
+            .then((result) => {
+                expect(result).toBeGreaterThanOrEqual(0);
+            })
+            .catch((error) => {
+                return Promise.reject(error);
+            });
+    });
 });
