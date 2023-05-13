@@ -1,5 +1,5 @@
-export const LOCATION_ROUTE = `/google-my-business/location`;
+export const LOCATION_ROUTE = `/location`;
 
-export const INSIGHT_ROUTE = `/google-my-business/insight`;
+export const INSIGHT_ROUTE = `/insight`;
 
-export const REVIEW_ROUTE = `/google-my-business/review`;
+export const REVIEW_ROUTE = `/review`;
