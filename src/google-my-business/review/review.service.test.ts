@@ -6,7 +6,7 @@ import { getReviews } from './review.service';
 describe('review', () => {
     let client: AxiosInstance;
     const accountId = `108405109682017952426`;
-    const locationId = `locations/16151841337430804192`;
+    const locationId = `locations/15985377062328992273`;
 
     beforeAll(async () => {
         client = await getAuthClient();
