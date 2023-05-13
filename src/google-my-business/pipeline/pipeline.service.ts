@@ -106,9 +106,11 @@ export const insightPipeline = async (options: InsightPipelineOptions) => {
         end: dayjs(end),
     });
 
-    return insert(insights, { table: `Insight__${accountId}`, schema: insightSchema }).then(
-        () => insights.length,
-    );
+    return insights.length > 0
+        ? insert(insights, { table: `Insight__${accountId}`, schema: insightSchema }).then(
+              () => insights.length,
+          )
+        : 0;
 };
 
 export type ReviewPipelineOptions = {
@@ -121,7 +123,9 @@ export const reviewPipeline = async ({ accountId, location }: ReviewPipelineOpti
 
     const reviews = await getReviews(client, { accountId, location });
 
-    return insert(reviews, { table: `Review__${accountId}`, schema: reviewSchema }).then(
-        () => reviews.length,
-    );
+    return reviews.length > 0
+        ? insert(reviews, { table: `Review__${accountId}`, schema: reviewSchema }).then(
+              () => reviews.length,
+          )
+        : 0;
 };
