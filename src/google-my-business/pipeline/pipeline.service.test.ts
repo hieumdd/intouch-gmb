@@ -33,7 +33,7 @@ describe('pipeline', () => {
     it('pipeline/review', async () => {
         const options = {
             accountId: '108405109682017952426',
-            locationId: 'locations/16151841337430804192',
+            location: 'locations/16151841337430804192',
         };
 
         return reviewPipeline(options)

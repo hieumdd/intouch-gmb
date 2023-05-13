@@ -113,13 +113,13 @@ export const insightPipeline = async (options: InsightPipelineOptions) => {
 
 export type ReviewPipelineOptions = {
     accountId: string;
-    locationId: string;
+    location: string;
 };
 
-export const reviewPipeline = async ({ accountId, locationId }: ReviewPipelineOptions) => {
+export const reviewPipeline = async ({ accountId, location }: ReviewPipelineOptions) => {
     const client = await getAuthClient();
 
-    const reviews = await getReviews(client, { accountId, locationId });
+    const reviews = await getReviews(client, { accountId, location });
 
     return load(reviews, { table: `Review__${accountId}`, schema: reviewSchema }).then(
         () => reviews.length,

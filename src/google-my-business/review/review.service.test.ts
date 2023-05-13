@@ -13,7 +13,7 @@ describe('review', () => {
     });
 
     it('get-reviews', async () => {
-        return getReviews(client, { accountId, locationId })
+        return getReviews(client, { accountId, location: locationId })
             .then((reviews) => {
                 console.log(reviews);
                 reviews.forEach((review) => {

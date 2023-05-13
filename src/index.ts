@@ -70,7 +70,7 @@ app.post(INSIGHT_ROUTE, ({ body }, res) => {
 app.post(REVIEW_ROUTE, ({ body }, res) => {
     const schema = Joi.object<ReviewPipelineOptions>({
         accountId: Joi.string().required(),
-        locationId: Joi.string().required(),
+        location: Joi.string().required(),
     });
 
     schema
