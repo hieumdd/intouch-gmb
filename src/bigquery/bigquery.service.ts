@@ -5,14 +5,14 @@ import ndjson from 'ndjson';
 import { BigQuery, TableSchema } from '@google-cloud/bigquery';
 import dayjs from 'dayjs';
 
+const client = new BigQuery();
+
+const DATASET = 'GoogleMyBusiness';
+
 type LoadOptions = {
     table: string;
     schema: Record<string, any>[];
 };
-
-const client = new BigQuery();
-
-const DATASET = 'GoogleMyBusiness';
 
 export const load = (rows: Record<string, any>[], options: LoadOptions) => {
     const tableWriteStream = client
@@ -32,4 +32,19 @@ export const load = (rows: Record<string, any>[], options: LoadOptions) => {
         ndjson.stringify(),
         tableWriteStream,
     );
+};
+
+type InsertOptions = {
+    table: string;
+    schema: Record<string, any>[];
+};
+
+export const insert = (rows: Record<string, any>[], options: InsertOptions) => {
+    return client
+        .dataset(DATASET)
+        .table(`p_${options.table}`)
+        .insert(
+            rows.map((row) => ({ ...row, _batched_at: dayjs().toISOString() })),
+            { schema: [...options.schema, { name: '_batched_at', type: 'TIMESTAMP' }] },
+        );
 };

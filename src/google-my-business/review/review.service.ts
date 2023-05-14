@@ -2,7 +2,7 @@ import { AxiosInstance } from 'axios';
 
 type GetReviewsOptions = {
     accountId: string;
-    locationId: string;
+    location: string;
 };
 
 type Review = Record<string, string>;
@@ -13,13 +13,13 @@ type ReviewsResponse = {
 };
 
 export const getReviews = async (client: AxiosInstance, options: GetReviewsOptions) => {
-    const { accountId, locationId } = options;
+    const { accountId, location } = options;
 
     const _get = async (pageToken?: string): Promise<Review[]> => {
         const { reviews, nextPageToken } = await client
             .request<ReviewsResponse>({
                 method: 'GET',
-                url: `https://mybusiness.googleapis.com/v4/accounts/${accountId}/${locationId}/reviews`,
+                url: `https://mybusiness.googleapis.com/v4/accounts/${accountId}/${location}/reviews`,
                 params: { pageToken },
             })
             .then((response) => response.data);
@@ -27,5 +27,7 @@ export const getReviews = async (client: AxiosInstance, options: GetReviewsOptio
         return nextPageToken ? [...reviews, ...(await _get(nextPageToken))] : reviews || [];
     };
 
-    return _get().then((rows) => (rows || []).map((row) => ({ ...row, accountId, locationId })));
+    return _get().then((rows) =>
+        (rows || []).map((row) => ({ ...row, accountId, locationId: location })),
+    );
 };
