@@ -11,7 +11,10 @@ concurrency: ${{ github.ref }}
 
 env:
   FUNCTION_NAME: intouch-gmb-${{ github.ref_name }}
+  PUBLIC_URL: https://us-central1-intouch-vet.cloudfunctions.net/intouch-gmb-${{ github.ref_name }}
   GCP_SA: integration-1@intouch-vet.iam.gserviceaccount.com
+
+  ENV_FILE: env.yaml
 
 jobs:
   deploy:
@@ -38,6 +41,9 @@ jobs:
 
       - uses: google-github-actions/setup-gcloud@v0
 
+      - run: |-
+          echo "PUBLIC_URL: ${{ env.PUBLIC_URL }}" >> ${{ env.ENV_FILE }}
+
       - run: >-
           gcloud functions deploy ${{ env.FUNCTION_NAME }}
           --entry-point=main
@@ -49,4 +55,5 @@ jobs:
           --trigger-http
           --no-user-output-enabled
           --service-account=${{ env.GCP_SA }}
+          --env-vars-file=${{ env.ENV_FILE }}
           --allow-unauthenticated

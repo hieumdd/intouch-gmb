@@ -77,6 +77,7 @@ export const getInsights = async (client: AxiosInstance, options: GetInsightsOpt
                 });
             });
         })
+        .then((rows) => rows.filter((row) => !!row.value))
         .catch((error) => {
             if (axios.isAxiosError(error) && error.response?.status === 403) {
                 const message = {
