@@ -1,31 +1,18 @@
 import { http } from '@google-cloud/functions-framework';
 import express from 'express';
-import dayjs from './dayjs';
-import Joi from 'joi';
 
+import { locationPipeline, insightPipeline, reviewPipeline } from './pipeline/pipeline.service';
 import {
-    LocationPipelineOptions,
-    InsightPipelineOptions,
-    ReviewPipelineOptions,
-    locationPipeline,
-    insightPipeline,
-    reviewPipeline,
-} from './pipeline/pipeline.service';
+    RunLocationPipelineBodySchema,
+    RunInsightPipelineBodySchema,
+    RunReviewPipelineBodySchema,
+} from './pipeline.request.dto';
 import { LOCATION_ROUTE, INSIGHT_ROUTE, REVIEW_ROUTE } from './route.const';
 
 const app = express();
 
 app.post(LOCATION_ROUTE, ({ body }, res) => {
-    const schema = Joi.object<LocationPipelineOptions>({
-        start: Joi.string()
-            .allow(null)
-            .empty(null)
-            .default(dayjs.utc().subtract(1, 'year').format('YYYY-MM-DD')),
-        end: Joi.string().allow(null).empty(null).default(dayjs.utc().format('YYYY-MM-DD')),
-    });
-
-    schema
-        .validateAsync(body)
+    RunLocationPipelineBodySchema.validateAsync(body)
         .then((options) => {
             locationPipeline(options)
                 .then((result) => res.status(200).json({ result }))
@@ -41,15 +28,7 @@ app.post(LOCATION_ROUTE, ({ body }, res) => {
 });
 
 app.post(INSIGHT_ROUTE, ({ body }, res) => {
-    const schema = Joi.object<InsightPipelineOptions>({
-        accountId: Joi.string().required(),
-        locationId: Joi.string().required(),
-        start: Joi.string().required(),
-        end: Joi.string().required(),
-    });
-
-    schema
-        .validateAsync(body)
+    RunInsightPipelineBodySchema.validateAsync(body)
         .then((options) => {
             insightPipeline(options)
                 .then((result) => res.status(200).json({ result }))
@@ -65,13 +44,7 @@ app.post(INSIGHT_ROUTE, ({ body }, res) => {
 });
 
 app.post(REVIEW_ROUTE, ({ body }, res) => {
-    const schema = Joi.object<ReviewPipelineOptions>({
-        accountId: Joi.string().required(),
-        location: Joi.string().required(),
-    });
-
-    schema
-        .validateAsync(body)
+    RunReviewPipelineBodySchema.validateAsync(body)
         .then((options) => {
             reviewPipeline(options)
                 .then((result) => res.status(200).json({ result }))
