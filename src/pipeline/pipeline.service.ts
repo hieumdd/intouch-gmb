@@ -1,13 +1,12 @@
-import dayjs from 'dayjs';
-
-import { insert, load } from '../../bigquery/bigquery.service';
-import { createTask } from '../../cloud-tasks/cloud-tasks.service';
-import { getAuthClient } from '../auth/auth.service';
-import { getLocations } from '../location/location.service';
-import { getInsights } from '../insight/insight.service';
-import { getReviews } from '../review/review.service';
-import { locationSchema, insightSchema, reviewSchema } from './pipeline.schema';
-import { INSIGHT_ROUTE, REVIEW_ROUTE } from '../../route.const';
+import dayjs from '../dayjs';
+import { insert, load } from '../bigquery.service';
+import { createTask } from '../cloud-tasks.service';
+import { getAuthClient } from '../google-my-business/auth/auth.service';
+import { getLocations } from '../google-my-business/location/location.service';
+import { getInsights } from '../google-my-business/insight/insight.service';
+import { getReviews } from '../google-my-business/review/review.service';
+import * as pipelines from './pipeline.const';
+import { INSIGHT_ROUTE, REVIEW_ROUTE } from '../route.const';
 
 export const ACCOUNT_IDS = [
     '108410633950303010387',
@@ -46,12 +45,12 @@ export const ACCOUNT_IDS = [
     '116471768159485451813',
 ];
 
-export type LocationPipelineOptions = {
+export type RunLocationPipelineOptions = {
     start: string;
     end: string;
 };
 
-export const locationPipeline = async ({ start, end }: LocationPipelineOptions) => {
+export const runLocationPipeline = async ({ start, end }: RunLocationPipelineOptions) => {
     const client = await getAuthClient();
 
     return Promise.all(
@@ -81,21 +80,21 @@ export const locationPipeline = async ({ start, end }: LocationPipelineOptions) 
 
             return [
                 locations,
-                createTasksPromise,
-                load(locations, { table: `Location__${accountId}`, schema: locationSchema }),
+                ...createTasksPromise,
+                load(locations, pipelines.Location(accountId)),
             ];
         }),
     ).then(([locations]) => locations.length);
 };
 
-export type InsightPipelineOptions = {
+export type RunInsightPipelineOptions = {
     accountId: string;
     locationId: string;
     start: string;
     end: string;
 };
 
-export const insightPipeline = async (options: InsightPipelineOptions) => {
+export const runInsightPipeline = async (options: RunInsightPipelineOptions) => {
     const { accountId, locationId, start, end } = options;
 
     const client = await getAuthClient();
@@ -107,25 +106,21 @@ export const insightPipeline = async (options: InsightPipelineOptions) => {
     });
 
     return insights.length > 0
-        ? insert(insights, { table: `Insight__${accountId}`, schema: insightSchema }).then(
-              () => insights.length,
-          )
+        ? insert(insights, pipelines.Insight(accountId)).then(() => insights.length)
         : 0;
 };
 
-export type ReviewPipelineOptions = {
+export type RunReviewPipelineOptions = {
     accountId: string;
     location: string;
 };
 
-export const reviewPipeline = async ({ accountId, location }: ReviewPipelineOptions) => {
+export const runReviewPipeline = async ({ accountId, location }: RunReviewPipelineOptions) => {
     const client = await getAuthClient();
 
     const reviews = await getReviews(client, { accountId, location });
 
     return reviews.length > 0
-        ? insert(reviews, { table: `Review__${accountId}`, schema: reviewSchema }).then(
-              () => reviews.length,
-          )
+        ? insert(reviews, pipelines.Review(accountId)).then(() => reviews.length)
         : 0;
 };

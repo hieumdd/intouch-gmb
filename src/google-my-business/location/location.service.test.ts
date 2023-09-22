@@ -2,7 +2,7 @@ import { AxiosInstance } from 'axios';
 
 import { getAuthClient } from '../auth/auth.service';
 import { getLocations } from './location.service';
-import { ACCOUNT_IDS } from '../pipeline/pipeline.service';
+import { ACCOUNT_IDS } from '../../pipeline/pipeline.service';
 
 describe('location', () => {
     let client: AxiosInstance;
