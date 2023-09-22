@@ -94,7 +94,7 @@ export type RunInsightPipelineOptions = {
     end: string;
 };
 
-export const RunInsightPipeline = async (options: RunInsightPipelineOptions) => {
+export const runInsightPipeline = async (options: RunInsightPipelineOptions) => {
     const { accountId, locationId, start, end } = options;
 
     const client = await getAuthClient();
@@ -115,7 +115,7 @@ export type RunReviewPipelineOptions = {
     location: string;
 };
 
-export const RunReviewPipeline = async ({ accountId, location }: RunReviewPipelineOptions) => {
+export const runReviewPipeline = async ({ accountId, location }: RunReviewPipelineOptions) => {
     const client = await getAuthClient();
 
     const reviews = await getReviews(client, { accountId, location });

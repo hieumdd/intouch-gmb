@@ -4,8 +4,8 @@ import express from 'express';
 import { logger } from './logging.service';
 import {
     runLocationPipeline,
-    RunInsightPipeline,
-    RunReviewPipeline,
+    runInsightPipeline,
+    runReviewPipeline,
 } from './pipeline/pipeline.service';
 import {
     RunLocationPipelineBodySchema,
@@ -40,7 +40,7 @@ app.post(LOCATION_ROUTE, ({ body }, res) => {
 app.post(INSIGHT_ROUTE, ({ body }, res) => {
     RunInsightPipelineBodySchema.validateAsync(body)
         .then((options) => {
-            RunInsightPipeline(options)
+            runInsightPipeline(options)
                 .then((result) => res.status(200).json({ result }))
                 .catch((error) => {
                     logger.error({ error });
@@ -56,7 +56,7 @@ app.post(INSIGHT_ROUTE, ({ body }, res) => {
 app.post(REVIEW_ROUTE, ({ body }, res) => {
     RunReviewPipelineBodySchema.validateAsync(body)
         .then((options) => {
-            RunReviewPipeline(options)
+            runReviewPipeline(options)
                 .then((result) => res.status(200).json({ result }))
                 .catch((error) => {
                     logger.error({ error });
