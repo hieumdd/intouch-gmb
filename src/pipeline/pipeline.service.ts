@@ -5,7 +5,7 @@ import { getAuthClient } from '../google-my-business/auth/auth.service';
 import { getLocations } from '../google-my-business/location/location.service';
 import { getInsights } from '../google-my-business/insight/insight.service';
 import { getReviews } from '../google-my-business/review/review.service';
-import { Location, Insight, Review } from './pipeline.const';
+import * as pipelines from './pipeline.const';
 import { INSIGHT_ROUTE, REVIEW_ROUTE } from '../route.const';
 
 export const ACCOUNT_IDS = [
@@ -78,7 +78,11 @@ export const runLocationPipeline = async ({ start, end }: RunLocationPipelineOpt
                 }),
             ];
 
-            return [locations, createTasksPromise, load(locations, Location(accountId))];
+            return [
+                locations,
+                ...createTasksPromise,
+                load(locations, pipelines.Location(accountId)),
+            ];
         }),
     ).then(([locations]) => locations.length);
 };
@@ -102,7 +106,7 @@ export const RunInsightPipeline = async (options: RunInsightPipelineOptions) => 
     });
 
     return insights.length > 0
-        ? insert(insights, Insight(accountId)).then(() => insights.length)
+        ? insert(insights, pipelines.Insight(accountId)).then(() => insights.length)
         : 0;
 };
 
@@ -116,5 +120,7 @@ export const RunReviewPipeline = async ({ accountId, location }: RunReviewPipeli
 
     const reviews = await getReviews(client, { accountId, location });
 
-    return reviews.length > 0 ? insert(reviews, Review(accountId)).then(() => reviews.length) : 0;
+    return reviews.length > 0
+        ? insert(reviews, pipelines.Review(accountId)).then(() => reviews.length)
+        : 0;
 };
