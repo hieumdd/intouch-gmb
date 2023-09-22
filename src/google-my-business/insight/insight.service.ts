@@ -1,6 +1,7 @@
 import axios, { AxiosInstance } from 'axios';
 import { Dayjs } from 'dayjs';
 import dayjs from '../../dayjs';
+import { logger } from '../../logging.service';
 
 export enum DailyMetric {
     // DAILY_METRIC_UNKNOWN = "DAILY_METRIC_UNKNOWN",
@@ -81,15 +82,10 @@ export const getInsights = async (client: AxiosInstance, options: GetInsightsOpt
         .then((rows) => rows.filter((row) => !!row.value))
         .catch((error) => {
             if (axios.isAxiosError(error) && error.response?.status === 403) {
-                const message = {
-                    locationId,
-                    severity: 'WARN',
-                    endpoint: 'insight',
-                };
-                console.log(JSON.stringify(message));
+                logger.warn({ fn: 'getInsights', locationId });
                 return [];
             }
 
-            return Promise.reject(error);
+            throw error;
         });
 };

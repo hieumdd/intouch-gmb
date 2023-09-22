@@ -3,6 +3,7 @@ import { pipeline } from 'stream/promises';
 import ndjson from 'ndjson';
 import { BigQuery, TableSchema } from '@google-cloud/bigquery';
 
+import { logger } from './logging.service';
 import dayjs from './dayjs';
 
 const client = new BigQuery();
@@ -25,7 +26,8 @@ export const load = (rows: Record<string, any>[], options: LoadOptions) => {
             sourceFormat: 'NEWLINE_DELIMITED_JSON',
             createDisposition: 'CREATE_IF_NEEDED',
             writeDisposition: 'WRITE_APPEND',
-        });
+        })
+        .on('job', () => logger.debug({ fn: 'load', ...options }));
 
     return pipeline(
         Readable.from(rows.map((row) => ({ ...row, _batched_at: dayjs().toISOString() }))),
