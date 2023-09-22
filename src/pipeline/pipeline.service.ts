@@ -45,12 +45,12 @@ export const ACCOUNT_IDS = [
     '116471768159485451813',
 ];
 
-export type LocationPipelineOptions = {
+export type RunLocationPipelineOptions = {
     start: string;
     end: string;
 };
 
-export const locationPipeline = async ({ start, end }: LocationPipelineOptions) => {
+export const runLocationPipeline = async ({ start, end }: RunLocationPipelineOptions) => {
     const client = await getAuthClient();
 
     return Promise.all(
@@ -87,14 +87,14 @@ export const locationPipeline = async ({ start, end }: LocationPipelineOptions) 
     ).then(([locations]) => locations.length);
 };
 
-export type InsightPipelineOptions = {
+export type RunInsightPipelineOptions = {
     accountId: string;
     locationId: string;
     start: string;
     end: string;
 };
 
-export const insightPipeline = async (options: InsightPipelineOptions) => {
+export const RunInsightPipeline = async (options: RunInsightPipelineOptions) => {
     const { accountId, locationId, start, end } = options;
 
     const client = await getAuthClient();
@@ -112,12 +112,12 @@ export const insightPipeline = async (options: InsightPipelineOptions) => {
         : 0;
 };
 
-export type ReviewPipelineOptions = {
+export type RunReviewPipelineOptions = {
     accountId: string;
     location: string;
 };
 
-export const reviewPipeline = async ({ accountId, location }: ReviewPipelineOptions) => {
+export const RunReviewPipeline = async ({ accountId, location }: RunReviewPipelineOptions) => {
     const client = await getAuthClient();
 
     const reviews = await getReviews(client, { accountId, location });

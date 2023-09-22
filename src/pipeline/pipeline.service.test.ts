@@ -1,10 +1,10 @@
-import { locationPipeline, insightPipeline, reviewPipeline } from './pipeline.service';
+import { runLocationPipeline, RunInsightPipeline, RunReviewPipeline } from './pipeline.service';
 
 describe('pipeline', () => {
     it('pipeline/location', async () => {
         const options = { start: '2023-01-01', end: '2024-01-01' };
 
-        return locationPipeline(options)
+        return runLocationPipeline(options)
             .then((result) => {
                 expect(result).toBeGreaterThanOrEqual(0);
             })
@@ -21,7 +21,7 @@ describe('pipeline', () => {
             end: '2024-01-01',
         };
 
-        return insightPipeline(options)
+        return RunInsightPipeline(options)
             .then((result) => {
                 expect(result).toBeGreaterThanOrEqual(0);
             })
@@ -36,7 +36,7 @@ describe('pipeline', () => {
             location: 'locations/16151841337430804192',
         };
 
-        return reviewPipeline(options)
+        return RunReviewPipeline(options)
             .then((result) => {
                 expect(result).toBeGreaterThanOrEqual(0);
             })

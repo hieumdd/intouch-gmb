@@ -2,7 +2,11 @@ import { http } from '@google-cloud/functions-framework';
 import express from 'express';
 
 import { logger } from './logging.service';
-import { locationPipeline, insightPipeline, reviewPipeline } from './pipeline/pipeline.service';
+import {
+    runLocationPipeline,
+    RunInsightPipeline,
+    RunReviewPipeline,
+} from './pipeline/pipeline.service';
 import {
     RunLocationPipelineBodySchema,
     RunInsightPipelineBodySchema,
@@ -20,7 +24,7 @@ app.use(({ headers, path, body }, _, next) => {
 app.post(LOCATION_ROUTE, ({ body }, res) => {
     RunLocationPipelineBodySchema.validateAsync(body)
         .then((options) => {
-            locationPipeline(options)
+            runLocationPipeline(options)
                 .then((result) => res.status(200).json({ result }))
                 .catch((error) => {
                     logger.error({ error });
@@ -36,7 +40,7 @@ app.post(LOCATION_ROUTE, ({ body }, res) => {
 app.post(INSIGHT_ROUTE, ({ body }, res) => {
     RunInsightPipelineBodySchema.validateAsync(body)
         .then((options) => {
-            insightPipeline(options)
+            RunInsightPipeline(options)
                 .then((result) => res.status(200).json({ result }))
                 .catch((error) => {
                     logger.error({ error });
@@ -52,7 +56,7 @@ app.post(INSIGHT_ROUTE, ({ body }, res) => {
 app.post(REVIEW_ROUTE, ({ body }, res) => {
     RunReviewPipelineBodySchema.validateAsync(body)
         .then((options) => {
-            reviewPipeline(options)
+            RunReviewPipeline(options)
                 .then((result) => res.status(200).json({ result }))
                 .catch((error) => {
                     logger.error({ error });

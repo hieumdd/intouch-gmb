@@ -2,12 +2,12 @@ import dayjs from './dayjs';
 import Joi from 'joi';
 
 import {
-    LocationPipelineOptions,
-    InsightPipelineOptions,
-    ReviewPipelineOptions,
+    RunLocationPipelineOptions,
+    RunInsightPipelineOptions,
+    RunReviewPipelineOptions,
 } from './pipeline/pipeline.service';
 
-export const RunLocationPipelineBodySchema = Joi.object<LocationPipelineOptions>({
+export const RunLocationPipelineBodySchema = Joi.object<RunLocationPipelineOptions>({
     start: Joi.string()
         .allow(null)
         .empty(null)
@@ -15,14 +15,14 @@ export const RunLocationPipelineBodySchema = Joi.object<LocationPipelineOptions>
     end: Joi.string().allow(null).empty(null).default(dayjs.utc().format('YYYY-MM-DD')),
 });
 
-export const RunInsightPipelineBodySchema = Joi.object<InsightPipelineOptions>({
+export const RunInsightPipelineBodySchema = Joi.object<RunInsightPipelineOptions>({
     accountId: Joi.string().required(),
     locationId: Joi.string().required(),
     start: Joi.string().required(),
     end: Joi.string().required(),
 });
 
-export const RunReviewPipelineBodySchema = Joi.object<ReviewPipelineOptions>({
+export const RunReviewPipelineBodySchema = Joi.object<RunReviewPipelineOptions>({
     accountId: Joi.string().required(),
     location: Joi.string().required(),
 });
