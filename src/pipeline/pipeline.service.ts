@@ -1,13 +1,13 @@
 import dayjs from 'dayjs';
 
-import { insert, load } from '../../bigquery/bigquery.service';
-import { createTask } from '../../cloud-tasks/cloud-tasks.service';
-import { getAuthClient } from '../auth/auth.service';
-import { getLocations } from '../location/location.service';
-import { getInsights } from '../insight/insight.service';
-import { getReviews } from '../review/review.service';
+import { insert, load } from '../bigquery.service';
+import { createTask } from '../cloud-tasks.service';
+import { getAuthClient } from '../google-my-business/auth/auth.service';
+import { getLocations } from '../google-my-business/location/location.service';
+import { getInsights } from '../google-my-business/insight/insight.service';
+import { getReviews } from '../google-my-business/review/review.service';
 import { locationSchema, insightSchema, reviewSchema } from './pipeline.schema';
-import { INSIGHT_ROUTE, REVIEW_ROUTE } from '../../route.const';
+import { INSIGHT_ROUTE, REVIEW_ROUTE } from '../route.const';
 
 export const ACCOUNT_IDS = [
     '108410633950303010387',

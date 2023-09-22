@@ -1,7 +1,7 @@
 import axios from 'axios';
 import axiosThrottle from 'axios-request-throttle';
 
-import { getSecret } from '../../secret-manager/secret-manager.service';
+import { getSecret } from '../../secret-manager.service';
 
 type Token = {
     access_token: string;

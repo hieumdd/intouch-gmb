@@ -13,7 +13,7 @@ import {
     locationPipeline,
     insightPipeline,
     reviewPipeline,
-} from './google-my-business/pipeline/pipeline.service';
+} from './pipeline/pipeline.service';
 import { LOCATION_ROUTE, INSIGHT_ROUTE, REVIEW_ROUTE } from './route.const';
 
 const app = express();
