@@ -1,9 +1,9 @@
 import { Readable } from 'stream';
 import { pipeline } from 'stream/promises';
-
 import ndjson from 'ndjson';
 import { BigQuery, TableSchema } from '@google-cloud/bigquery';
-import dayjs from 'dayjs';
+
+import dayjs from './dayjs';
 
 const client = new BigQuery();
 

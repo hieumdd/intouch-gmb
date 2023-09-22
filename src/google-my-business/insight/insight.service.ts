@@ -1,5 +1,6 @@
 import axios, { AxiosInstance } from 'axios';
-import dayjs, { Dayjs } from 'dayjs';
+import { Dayjs } from 'dayjs';
+import dayjs from '../../dayjs';
 
 export enum DailyMetric {
     // DAILY_METRIC_UNKNOWN = "DAILY_METRIC_UNKNOWN",

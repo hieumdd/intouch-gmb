@@ -1,10 +1,7 @@
 import { http } from '@google-cloud/functions-framework';
 import express from 'express';
-import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
+import dayjs from './dayjs';
 import Joi from 'joi';
-
-dayjs.extend(utc);
 
 import {
     LocationPipelineOptions,

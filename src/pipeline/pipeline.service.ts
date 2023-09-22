@@ -1,5 +1,4 @@
-import dayjs from 'dayjs';
-
+import dayjs from '../dayjs';
 import { insert, load } from '../bigquery.service';
 import { createTask } from '../cloud-tasks.service';
 import { getAuthClient } from '../google-my-business/auth/auth.service';
