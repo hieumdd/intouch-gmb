@@ -2,6 +2,7 @@ import { http } from '@google-cloud/functions-framework';
 import express from 'express';
 
 import { logger } from './logging.service';
+import * as pipelines from './pipeline/pipeline.const';
 import {
     runLocationPipeline,
     runInsightPipeline,
@@ -11,8 +12,7 @@ import {
     RunLocationPipelineBodySchema,
     RunInsightPipelineBodySchema,
     RunReviewPipelineBodySchema,
-} from './pipeline.request.dto';
-import { LOCATION_ROUTE, INSIGHT_ROUTE, REVIEW_ROUTE } from './route.const';
+} from './pipeline/pipeline.request.dto';
 
 const app = express();
 
@@ -21,7 +21,7 @@ app.use(({ headers, path, body }, _, next) => {
     next();
 });
 
-app.post(LOCATION_ROUTE, ({ body }, res) => {
+app.post(`/${pipelines.Location.route}`, ({ body }, res) => {
     RunLocationPipelineBodySchema.validateAsync(body)
         .then((options) => {
             runLocationPipeline(options)
@@ -37,7 +37,7 @@ app.post(LOCATION_ROUTE, ({ body }, res) => {
         });
 });
 
-app.post(INSIGHT_ROUTE, ({ body }, res) => {
+app.post(`/${pipelines.Insight.route}`, ({ body }, res) => {
     RunInsightPipelineBodySchema.validateAsync(body)
         .then((options) => {
             runInsightPipeline(options)
@@ -53,7 +53,7 @@ app.post(INSIGHT_ROUTE, ({ body }, res) => {
         });
 });
 
-app.post(REVIEW_ROUTE, ({ body }, res) => {
+app.post(`/${pipelines.Review.route}`, ({ body }, res) => {
     RunReviewPipelineBodySchema.validateAsync(body)
         .then((options) => {
             runReviewPipeline(options)

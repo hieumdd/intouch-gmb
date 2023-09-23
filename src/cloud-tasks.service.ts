@@ -22,7 +22,7 @@ export const createTask = async <P>(endpoint: string, payload: P, nameFn: (p: P)
             httpRequest: {
                 httpMethod: HttpMethod.POST,
                 headers: { 'Content-Type': 'application/json' },
-                url: URL + endpoint,
+                url: `${URL}/${endpoint}`,
                 oidcToken: { serviceAccountEmail },
                 body: Buffer.from(JSON.stringify(payload)).toString('base64'),
             },

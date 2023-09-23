@@ -1,13 +1,14 @@
-import dayjs from './dayjs';
+import dayjs from '../dayjs';
 import Joi from 'joi';
 
 import {
     RunLocationPipelineOptions,
     RunInsightPipelineOptions,
     RunReviewPipelineOptions,
-} from './pipeline/pipeline.service';
+} from './pipeline.service';
 
 export const RunLocationPipelineBodySchema = Joi.object<RunLocationPipelineOptions>({
+    refreshToken: Joi.string(),
     start: Joi.string()
         .allow(null)
         .empty(null)
@@ -16,6 +17,7 @@ export const RunLocationPipelineBodySchema = Joi.object<RunLocationPipelineOptio
 });
 
 export const RunInsightPipelineBodySchema = Joi.object<RunInsightPipelineOptions>({
+    refreshToken: Joi.string(),
     accountId: Joi.string().required(),
     locationId: Joi.string().required(),
     start: Joi.string().required(),
@@ -23,6 +25,7 @@ export const RunInsightPipelineBodySchema = Joi.object<RunInsightPipelineOptions
 });
 
 export const RunReviewPipelineBodySchema = Joi.object<RunReviewPipelineOptions>({
+    refreshToken: Joi.string(),
     accountId: Joi.string().required(),
     location: Joi.string().required(),
 });
