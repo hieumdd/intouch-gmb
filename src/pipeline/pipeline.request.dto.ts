@@ -9,6 +9,7 @@ import {
 
 export const RunLocationPipelineBodySchema = Joi.object<RunLocationPipelineOptions>({
     refreshToken: Joi.string(),
+    accountIds: Joi.array().items(Joi.string()),
     start: Joi.string()
         .allow(null)
         .empty(null)
