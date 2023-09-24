@@ -62,11 +62,7 @@ export const runLocationPipeline = async (options: RunLocationPipelineOptions) =
                 }),
             ];
 
-            return [
-                locations,
-                ...createTasksPromise,
-                load(locations, pipelines.Location.getLoadConfig(accountId)),
-            ];
+            return [locations, ...createTasksPromise, load(locations, pipelines.Location.getLoadConfig(accountId))];
         }),
     ).then(([locations]) => locations.length);
 };

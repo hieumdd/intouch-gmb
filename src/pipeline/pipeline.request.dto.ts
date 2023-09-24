@@ -1,19 +1,12 @@
 import dayjs from '../dayjs';
 import Joi from 'joi';
 
-import {
-    RunLocationPipelineOptions,
-    RunInsightPipelineOptions,
-    RunReviewPipelineOptions,
-} from './pipeline.service';
+import { RunLocationPipelineOptions, RunInsightPipelineOptions, RunReviewPipelineOptions } from './pipeline.service';
 
 export const RunLocationPipelineBodySchema = Joi.object<RunLocationPipelineOptions>({
     refreshToken: Joi.string(),
     accountIds: Joi.array().items(Joi.string()),
-    start: Joi.string()
-        .allow(null)
-        .empty(null)
-        .default(dayjs.utc().subtract(1, 'year').format('YYYY-MM-DD')),
+    start: Joi.string().allow(null).empty(null).default(dayjs.utc().subtract(1, 'year').format('YYYY-MM-DD')),
     end: Joi.string().allow(null).empty(null).default(dayjs.utc().format('YYYY-MM-DD')),
 });
 

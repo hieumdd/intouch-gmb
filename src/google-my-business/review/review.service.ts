@@ -27,7 +27,5 @@ export const getReviews = async (client: AxiosInstance, options: GetReviewsOptio
         return nextPageToken ? [...reviews, ...(await _get(nextPageToken))] : reviews || [];
     };
 
-    return _get().then((rows) =>
-        (rows || []).map((row) => ({ ...row, accountId, locationId: location })),
-    );
+    return _get().then((rows) => (rows || []).map((row) => ({ ...row, accountId, locationId: location })));
 };
