@@ -1,25 +1,21 @@
 import axios from 'axios';
 import axiosThrottle from 'axios-request-throttle';
 
-import { getSecret } from '../../secret-manager/secret-manager.service';
+import { getSecret } from '../../secret-manager.service';
 
-type Token = {
-    access_token: string;
-};
+export const getToken = async (refreshToken: string) => {
+    type Token = {
+        access_token: string;
+    };
 
-const TOKEN_URL = 'https://oauth2.googleapis.com/token';
-
-export const getToken = async () => {
-    const [clientId, clientSecret, refreshToken] = await Promise.all(
-        ['GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET', 'GOOGLE_REFRESH_TOKEN'].map((name) =>
-            getSecret(name),
-        ),
+    const [clientId, clientSecret] = await Promise.all(
+        ['GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET'].map((name) => getSecret(name)),
     );
 
     return axios
         .request<Token>({
             method: 'POST',
-            url: TOKEN_URL,
+            url: 'https://oauth2.googleapis.com/token',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             data: {
                 client_id: clientId,
@@ -28,14 +24,14 @@ export const getToken = async () => {
                 grant_type: 'refresh_token',
             },
         })
-        .then((res) => res.data);
+        .then((response) => response.data);
 };
 
-export const getAuthClient = async () => {
-    return getToken().then(({ access_token: token }) => {
+export const getAuthClient = async (refreshToken: string) => {
+    return getToken(refreshToken).then(({ access_token }) => {
         const client = axios.create({
             headers: {
-                Authorization: `Bearer ${token}`,
+                Authorization: `Bearer ${access_token}`,
                 'Content-Type': 'application/json',
             },
         });

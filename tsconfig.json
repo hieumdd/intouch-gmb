@@ -1,10 +1,9 @@
 {
     "extends": "@tsconfig/node18/tsconfig.json",
     "include": [
-        "./src/**/*",
+        "./src/**/*"
     ],
     "compilerOptions": {
-        "sourceMap": true,
-        "esModuleInterop": true
+        "outDir": "dist"
     }
 }
