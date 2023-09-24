@@ -4,6 +4,7 @@ import express from 'express';
 import { logger } from './logging.service';
 import * as pipelines from './pipeline/pipeline.const';
 import {
+    createLocationPipelines,
     runLocationPipeline,
     runInsightPipeline,
     runReviewPipeline,
@@ -66,6 +67,15 @@ app.post(`/${pipelines.Review.route}`, ({ body }, res) => {
         .catch((error) => {
             logger.warn({ error });
             res.status(400).json({ error });
+        });
+});
+
+app.post(`/`, (_, res) => {
+    createLocationPipelines()
+        .then((result) => res.status(200).json({ result }))
+        .catch((error) => {
+            logger.error({ error });
+            res.status(500).json({ error });
         });
 });
 
