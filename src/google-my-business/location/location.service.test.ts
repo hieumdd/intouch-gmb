@@ -1,18 +1,19 @@
 import { AxiosInstance } from 'axios';
 
+import { configs } from '../../pipeline/account.const';
 import { getAuthClient } from '../auth/auth.service';
 import { getLocations } from './location.service';
-import { ACCOUNT_IDS } from '../../pipeline/pipeline.service';
 
 describe('location', () => {
+    const config = configs[1];
     let client: AxiosInstance;
 
     beforeAll(async () => {
-        client = await getAuthClient();
+        client = await config.getRefreshToken().then(getAuthClient);
     });
 
     describe('get-locations', () => {
-        it.each(ACCOUNT_IDS)('get-locations-%p', async (accountId) => {
+        it.each(config.accountIds)('get-locations-%p', async (accountId) => {
             return getLocations(client, { accountId })
                 .then((locations) => {
                     console.log(locations);
