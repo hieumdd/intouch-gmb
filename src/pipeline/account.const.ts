@@ -48,6 +48,7 @@ export const configs: Config[] = [
     {
         getRefreshToken: () => getSecret('GOOGLE_REFRESH_TOKEN_2'),
         accountIds: [
+            '103230759713401946828',
             '102424011136800668773',
             '101226892768043102725',
             '114180296142679027779',
