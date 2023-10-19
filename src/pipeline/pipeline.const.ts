@@ -12,6 +12,12 @@ export const Location: Pipeline = {
         schema: [
             { name: 'name', type: 'STRING' },
             { name: 'title', type: 'STRING' },
+            { name: 'storeCode', type: 'STRING' },
+            {
+                name: 'storefrontAddress',
+                type: 'RECORD',
+                fields: [{ name: 'addressLines', type: 'STRING', mode: 'REPEATED' }],
+            },
         ],
     }),
 };
