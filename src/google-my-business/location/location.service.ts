@@ -19,7 +19,7 @@ export const getLocations = (client: AxiosInstance, { accountId }: GetLocationsO
         const { data } = await client.request<LocationsResponse>({
             url: `https://mybusinessbusinessinformation.googleapis.com/v1/accounts/${accountId}/locations`,
             params: {
-                readMask: ['name', 'title'].join(','),
+                readMask: ['name', 'title', 'storeCode', 'storefrontAddress.addressLines'].join(','),
                 pageSize: 100,
                 pageToken,
             },
