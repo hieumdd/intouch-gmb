@@ -26,6 +26,7 @@ export const load = (rows: Record<string, any>[], { table, schema }: LoadConfig)
             sourceFormat: 'NEWLINE_DELIMITED_JSON',
             createDisposition: 'CREATE_IF_NEEDED',
             writeDisposition: 'WRITE_APPEND',
+            schemaUpdateOptions: ['ALLOW_FIELD_ADDITION'],
         })
         .on('job', () => logger.debug({ fn: 'load', table }));
 
