@@ -1,7 +1,38 @@
 import axios from 'axios';
 import axiosThrottle from 'axios-request-throttle';
+import { google } from 'googleapis';
 
 import { getSecret } from '../../secret-manager.service';
+import * as AccountRepository from '../business/business.repository';
+import { logger } from '../../logging.service';
+
+export const oauth2Client = new google.auth.OAuth2({
+    clientId: <string>process.env.GOOGLE_CLIENT_ID,
+    clientSecret: <string>process.env.GOOGLE_CLIENT_SECRET,
+    redirectUri: process.env.REDIRECT_URI,
+});
+
+oauth2Client.on('tokens', async (token) => {
+    logger.debug({ token });
+    const info = await oauth2Client.getTokenInfo(<string>token.access_token);
+    await AccountRepository.set(<string>info.email, { token });
+});
+
+export const getAuthorizationURL = async () => {
+    const scope = ['email', 'https://www.googleapis.com/auth/business.manage'];
+    return oauth2Client.generateAuthUrl({ scope, access_type: 'offline', prompt: 'consent' });
+};
+
+export const exchangeCodeForToken = async (code: string) => {
+    const { tokens: token } = await oauth2Client.getToken(code);
+    return token;
+};
+
+export const ensureToken = async (accountId: string) => {
+    const existingToken = (await AccountRepository.getOne(accountId)).data()!;
+    oauth2Client.setCredentials(existingToken);
+    return oauth2Client;
+};
 
 export const getToken = async (refreshToken: string) => {
     type Token = {

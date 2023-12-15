@@ -4,7 +4,12 @@ import {
     runLocationPipeline,
     runInsightPipeline,
     runReviewPipeline,
+    initiatePipelines,
 } from './pipeline.service';
+
+it('initiatePipelines', async () => {
+    return initiatePipelines();
+});
 
 it('pipeline/createLocationPipelines', async () => {
     return createLocationPipelines().catch((error) => {

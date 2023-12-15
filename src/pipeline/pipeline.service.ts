@@ -1,14 +1,53 @@
 import { v4 as uuid4 } from 'uuid';
 
+import { oauth2Client } from '../google-my-business/auth/auth.service';
 import dayjs from '../dayjs';
 import { insert, load } from '../bigquery.service';
 import { createTask } from '../cloud-tasks.service';
 import { configs } from './account.const';
-import { getAuthClient } from '../google-my-business/auth/auth.service';
+import { getAuthClient, ensureToken } from '../google-my-business/auth/auth.service';
 import { getLocations } from '../google-my-business/location/location.service';
 import { getInsights } from '../google-my-business/insight/insight.service';
 import { getReviews } from '../google-my-business/review/review.service';
 import * as pipelines from './pipeline.const';
+import { getAll } from '../google-my-business/business/business.repository';
+import { getAccounts } from '../google-my-business/account/account.service';
+
+export const initiatePipelines = async () => {
+    const businessSnapshots = await getAll();
+
+    return await Promise.all(
+        businessSnapshots.map(async ({ id: businessId }) => {
+            await ensureToken(businessId);
+            const accounts = await getAccounts();
+
+            return await Promise.all(
+                accounts.map(async ({ accountId }) => {
+                    const locations = await getLocations(oauth2Client, { accountId });
+
+                    const taskPromises = locations.flatMap(({ locationId }) => {
+                        return [
+                            createTask(
+                                pipelines.Insight.route,
+                                { businessId, accountId, locationId, start: '', end: '' },
+                                () => pipelines.Insight.route,
+                            ),
+                            createTask(
+                                pipelines.Review.route,
+                                { businessId, accountId, locationId },
+                                () => pipelines.Review.route,
+                            ),
+                        ];
+                    });
+
+                    return [...taskPromises, load(locations, pipelines.Location.getLoadConfig(accountId))];
+                }),
+            ).then((promises) => promises.flat());
+        }),
+    )
+        .then((promises) => Promise.all(promises.flat()))
+        .then(() => true);
+};
 
 export const createLocationPipelines = async () => {
     return Promise.all(
@@ -37,7 +76,7 @@ export const runLocationPipeline = async (options: RunLocationPipelineOptions) =
 
     return Promise.all(
         accountIds.flatMap(async (accountId) => {
-            const locations = await getLocations(client, { accountId });
+            const locations = await getLocations(oauth2Client, { accountId });
 
             const createTasksPromise = [
                 ...locations.map(({ name }) => {

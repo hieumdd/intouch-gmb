@@ -2,6 +2,8 @@ import { http } from '@google-cloud/functions-framework';
 import express from 'express';
 
 import { logger } from './logging.service';
+import { CallbackQuerySchema } from './google-my-business/auth/auth.request.dto';
+import { exchangeCodeForToken, getAuthorizationURL } from './google-my-business/auth/auth.service';
 import * as pipelines from './pipeline/pipeline.const';
 import {
     createLocationPipelines,
@@ -20,6 +22,21 @@ const app = express();
 app.use(({ headers, path, body }, _, next) => {
     logger.info({ headers, path, body });
     next();
+});
+
+app.get('/authorize', (_, res) => {
+    getAuthorizationURL().then((url) => res.redirect(url));
+});
+
+app.get('/authorize/callback', ({ query }, res) => {
+    CallbackQuerySchema.validateAsync(query, { stripUnknown: true })
+        .then(({ code }) => {
+            exchangeCodeForToken(code).then((token) => res.status(200).json({ token }));
+        })
+        .catch((error) => {
+            logger.warn({ error });
+            res.status(400).json({ error });
+        });
 });
 
 app.post(`/${pipelines.Location.route}`, ({ body }, res) => {
@@ -79,4 +96,4 @@ app.post(`/`, (_, res) => {
         });
 });
 
-http('main', app);
+app.listen(8080);
