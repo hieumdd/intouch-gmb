@@ -1,4 +1,5 @@
 import express from 'express';
+import bodyParser from 'body-parser';
 
 import { logger } from './logging.service';
 import { CallbackQuerySchema } from './google-my-business/auth/auth.request.dto';
@@ -8,6 +9,8 @@ import { initiatePipelines, runLocationPipeline } from './pipeline/pipeline.serv
 import { RunLocationPipelineBodySchema } from './pipeline/pipeline.request.dto';
 
 const app = express();
+
+app.use(bodyParser.json());
 
 app.use(({ headers, path, body }, _, next) => {
     logger.info({ headers, path, body });
