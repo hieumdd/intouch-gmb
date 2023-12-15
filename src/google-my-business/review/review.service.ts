@@ -1,16 +1,10 @@
 import { OAuth2Client } from 'google-auth-library';
-import { AxiosInstance } from 'axios';
+
+import { Review } from './review.type';
 
 type GetReviewsOptions = {
     accountId: string;
     locationId: string;
-};
-
-type Review = Record<string, string>;
-
-type ReviewsResponse = {
-    reviews: Review[];
-    nextPageToken?: string;
 };
 
 export const getReviews = async (client: OAuth2Client, options: GetReviewsOptions) => {
@@ -18,7 +12,7 @@ export const getReviews = async (client: OAuth2Client, options: GetReviewsOption
 
     const _get = async (pageToken?: string): Promise<Review[]> => {
         const { reviews, nextPageToken } = await client
-            .request<ReviewsResponse>({
+            .request<{ reviews: Review[]; nextPageToken?: string }>({
                 method: 'GET',
                 url: `https://mybusiness.googleapis.com/v4/accounts/${accountId}/locations/${locationId}/reviews`,
                 params: { pageToken },
@@ -28,5 +22,5 @@ export const getReviews = async (client: OAuth2Client, options: GetReviewsOption
         return nextPageToken ? [...reviews, ...(await _get(nextPageToken))] : reviews || [];
     };
 
-    return _get().then((rows) => (rows || []).map((row) => ({ ...row, accountId, locationId })));
+    return await _get().then((rows) => (rows || []).map((row) => ({ ...row, accountId, locationId })));
 };

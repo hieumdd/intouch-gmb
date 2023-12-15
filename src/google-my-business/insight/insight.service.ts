@@ -1,5 +1,6 @@
-import { OAuth2Client } from 'google-auth-library';
 import axios from 'axios';
+import { OAuth2Client } from 'google-auth-library';
+
 import dayjs from '../../dayjs';
 import { logger } from '../../logging.service';
 
@@ -44,7 +45,7 @@ export const getInsights = async (client: OAuth2Client, { locationId }: GetInsig
     const start = dayjs.utc().subtract(1, 'year');
     const end = dayjs.utc();
 
-    return client
+    return await client
         .request<MultiDailyMetricResponse>({
             method: 'GET',
             url: `https://businessprofileperformance.googleapis.com/v1/locations/${locationId}:fetchMultiDailyMetricsTimeSeries`,
