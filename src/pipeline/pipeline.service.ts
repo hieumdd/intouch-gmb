@@ -18,12 +18,12 @@ export const initiatePipelines = async () => {
 
     return await Promise.all(
         businessSnapshots.map(async ({ id: businessId }) => {
-            await ensureToken(businessId);
-            const accounts = await getAccounts();
+            const client = await ensureToken(businessId);
+            const accounts = await getAccounts(client);
 
             return await Promise.all(
                 accounts.map(async ({ accountId }) => {
-                    const locations = await getLocations(oauth2Client, { accountId });
+                    const locations = await getLocations(client, { accountId });
 
                     const taskPromises = locations.flatMap(({ locationId }) => {
                         return [
@@ -76,7 +76,7 @@ export const runLocationPipeline = async (options: RunLocationPipelineOptions) =
 
     return Promise.all(
         accountIds.flatMap(async (accountId) => {
-            const locations = await getLocations(oauth2Client, { accountId });
+            const locations = await getLocations(oauth2Client(), { accountId });
 
             const createTasksPromise = [
                 ...locations.map(({ name }) => {
