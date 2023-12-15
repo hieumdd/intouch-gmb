@@ -1,14 +1,8 @@
 import Joi from 'joi';
 
-import { RunInsightPipelineOptions, RunReviewPipelineOptions } from './pipeline.service';
+import { RunLocationPipelineOptions } from './pipeline.service';
 
-export const RunInsightPipelineBodySchema = Joi.object<RunInsightPipelineOptions>({
-    businessId: Joi.string().required(),
-    accountId: Joi.string().required(),
-    locationId: Joi.string().required(),
-});
-
-export const RunReviewPipelineBodySchema = Joi.object<RunReviewPipelineOptions>({
+export const RunLocationPipelineBodySchema = Joi.object<RunLocationPipelineOptions>({
     businessId: Joi.string().required(),
     accountId: Joi.string().required(),
     locationId: Joi.string().required(),
