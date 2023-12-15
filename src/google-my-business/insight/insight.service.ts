@@ -1,5 +1,5 @@
-import axios, { AxiosInstance } from 'axios';
-import { Dayjs } from 'dayjs';
+import { OAuth2Client } from 'google-auth-library';
+import axios from 'axios';
 import dayjs from '../../dayjs';
 import { logger } from '../../logging.service';
 
@@ -20,8 +20,6 @@ export enum DailyMetric {
 
 type GetInsightsOptions = {
     locationId: string;
-    start: Dayjs;
-    end: Dayjs;
 };
 
 type MultiDailyMetricResponse = {
@@ -35,15 +33,16 @@ type MultiDailyMetricResponse = {
                         month: number;
                         day: number;
                     };
-                    value: string;
+                    value?: string;
                 }[];
             };
         }[];
     }[];
 };
 
-export const getInsights = async (client: AxiosInstance, options: GetInsightsOptions) => {
-    const { locationId, start, end } = options;
+export const getInsights = async (client: OAuth2Client, { locationId }: GetInsightsOptions) => {
+    const start = dayjs.utc().subtract(1, 'year');
+    const end = dayjs.utc();
 
     return client
         .request<MultiDailyMetricResponse>({
@@ -57,9 +56,6 @@ export const getInsights = async (client: AxiosInstance, options: GetInsightsOpt
                 'dailyRange.end_date.year': end.year(),
                 'dailyRange.end_date.month': end.month() + 1,
                 'dailyRange.end_date.day': end.date(),
-            },
-            paramsSerializer: {
-                indexes: null,
             },
         })
         .then((response) => response.data)

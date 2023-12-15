@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 import { configs } from '../../pipeline/account.const';
-import { getAuthorizationURL, getToken, getAuthClient, oauth2Client, ensureToken } from './auth.service';
+import { getAuthorizationURL, getToken, getAuthClient, oauth2Client, getClient } from './auth.service';
 import { getAll } from '../business/business.repository';
 
 it('getAuthorizationURL', () => {
@@ -11,7 +11,7 @@ it('getAuthorizationURL', () => {
 
 it('ensureToken', async () => {
     const accounts = await getAll();
-    return await Promise.all(accounts.map((account) => ensureToken(account.id)));
+    return await Promise.all(accounts.map((account) => getClient(account.id)));
 });
 
 describe('auth', () => {
