@@ -7,7 +7,7 @@ export const oauth2Client = () => {
     const client = new google.auth.OAuth2({
         clientId: <string>process.env.GOOGLE_CLIENT_ID,
         clientSecret: <string>process.env.GOOGLE_CLIENT_SECRET,
-        redirectUri: process.env.REDIRECT_URI,
+        redirectUri: `${process.env.PUBLIC_URL}/authorize/callback`,
     });
 
     client.on('tokens', async (token) => {
