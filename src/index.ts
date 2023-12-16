@@ -19,8 +19,13 @@ const app = express();
 
 app.use(bodyParser.json());
 
-app.use(({ headers, path, body }, _, next) => {
-    logger.info({ headers, path, body });
+app.use(({ method, headers, path, body }, res, next) => {
+    logger.info({ method, headers, path, body });
+
+    res.on('finish', () => {
+        logger.info({ method, headers, path, body, status: res.statusCode });
+    });
+
     next();
 });
 
