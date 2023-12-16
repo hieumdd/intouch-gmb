@@ -1,7 +1,7 @@
 import { google } from 'googleapis';
 
-import * as AccountRepository from '../business/business.repository';
 import { logger } from '../../logging.service';
+import * as AccountRepository from '../business/business.repository';
 
 export const oauth2Client = () => {
     const client = new google.auth.OAuth2({
@@ -19,7 +19,7 @@ export const oauth2Client = () => {
     return client;
 };
 
-export const getAuthorizationURL = async () => {
+export const getAuthorizationURL = () => {
     const scope = ['email', 'https://www.googleapis.com/auth/business.manage'];
     return oauth2Client().generateAuthUrl({ scope, access_type: 'offline', prompt: 'consent' });
 };

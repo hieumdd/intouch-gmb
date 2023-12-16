@@ -1,5 +1,5 @@
-import { getAuthorizationURL, getClient } from './auth.service';
 import { getAll } from '../business/business.repository';
+import { getAuthorizationURL, getClient } from './auth.service';
 
 it('getAuthorizationURL', () => {
     const url = getAuthorizationURL();
