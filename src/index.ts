@@ -8,6 +8,13 @@ import * as pipelines from './pipeline/pipeline.const';
 import { initiatePipelines, runLocationPipeline } from './pipeline/pipeline.service';
 import { RunLocationPipelineBodySchema } from './pipeline/pipeline.request.dto';
 
+['SIGINT', 'SIGTERM'].forEach((signal) => {
+    process.on(signal, () => {
+        logger.info({ action: 'interupt' });
+        process.exit(0);
+    });
+});
+
 const app = express();
 
 app.use(bodyParser.json());
