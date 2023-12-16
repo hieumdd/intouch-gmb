@@ -2,8 +2,8 @@ import express from 'express';
 import bodyParser from 'body-parser';
 
 import { logger } from './logging.service';
-import { CallbackQuerySchema } from './google-my-business/auth/auth.request.dto';
 import { exchangeCodeForToken, getAuthorizationURL } from './google-my-business/auth/auth.service';
+import { CallbackQuerySchema } from './google-my-business/auth/auth.request.dto';
 import * as pipelines from './pipeline/pipeline.const';
 import { initiatePipelines, runLocationPipeline } from './pipeline/pipeline.service';
 import { RunLocationPipelineBodySchema } from './pipeline/pipeline.request.dto';

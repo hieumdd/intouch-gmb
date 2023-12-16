@@ -6,7 +6,7 @@ it('getAuthorizationURL', () => {
     expect(url).toBeDefined();
 });
 
-it('ensureToken', async () => {
+it('getClient`', async () => {
     const accounts = await getAll();
     return await Promise.all(accounts.map((account) => getClient(account.id)));
 });
