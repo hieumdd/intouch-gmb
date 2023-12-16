@@ -30,7 +30,7 @@ app.use(({ method, path, body }, res, next) => {
 });
 
 app.get('/authorize', (_, res) => {
-    getAuthorizationURL().then((url) => res.redirect(url));
+    res.status(301).redirect(getAuthorizationURL());
 });
 
 app.get('/authorize/callback', ({ query }, res) => {
