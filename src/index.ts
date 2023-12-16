@@ -19,11 +19,11 @@ const app = express();
 
 app.use(bodyParser.json());
 
-app.use(({ method, headers, path, body }, res, next) => {
-    logger.info({ method, headers, path, body });
+app.use(({ method, path, body }, res, next) => {
+    logger.info({ method, path, body });
 
     res.on('finish', () => {
-        logger.info({ method, headers, path, body, status: res.statusCode });
+        logger.info({ method, path, body, status: res.statusCode });
     });
 
     next();
