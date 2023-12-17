@@ -1,5 +1,5 @@
-import axios from 'axios';
 import { OAuth2Client } from 'google-auth-library';
+import { GaxiosError } from 'gaxios';
 
 import dayjs from '../../dayjs';
 import { logger } from '../../logging.service';
@@ -78,11 +78,10 @@ export const getInsights = async (client: OAuth2Client, { locationId }: GetInsig
         })
         .then((rows) => rows.filter((row) => !!row.value))
         .catch((error) => {
-            if (axios.isAxiosError(error) && error.response?.status === 403) {
-                logger.warn({ fn: 'getInsights', locationId });
+            if (error instanceof GaxiosError && error.status === 403) {
+                logger.warn({ fn: 'getInsights', status: error.status, locationId });
                 return [];
             }
-
             throw error;
         });
 };
