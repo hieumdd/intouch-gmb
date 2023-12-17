@@ -12,6 +12,8 @@
         "body-parser": "^1.20.2",
         "dayjs": "^1.11.10",
         "express": "^4.18.2",
+        "gaxios": "^6.1.1",
+        "google-auth-library": "^9.4.1",
         "googleapis": "^129.0.0",
         "joi": "^17.11.0",
         "ndjson": "^2.0.0",
