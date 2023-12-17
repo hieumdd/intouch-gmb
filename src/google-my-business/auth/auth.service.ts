@@ -1,43 +1,37 @@
-import axios from 'axios';
-import axiosThrottle from 'axios-request-throttle';
+import { google } from 'googleapis';
 
-import { getSecret } from '../../secret-manager.service';
+import { logger } from '../../logging.service';
+import * as AccountRepository from '../business/business.repository';
 
-export const getToken = async (refreshToken: string) => {
-    type Token = {
-        access_token: string;
-    };
+export const oauth2Client = () => {
+    const client = new google.auth.OAuth2({
+        clientId: <string>process.env.GOOGLE_CLIENT_ID,
+        clientSecret: <string>process.env.GOOGLE_CLIENT_SECRET,
+        redirectUri: `${process.env.PUBLIC_URL}/authorize/callback`,
+    });
 
-    const [clientId, clientSecret] = await Promise.all(
-        ['GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET'].map((name) => getSecret(name)),
-    );
+    client.on('tokens', async (token) => {
+        logger.debug({ token });
+        const info = await client.getTokenInfo(<string>token.access_token);
+        await AccountRepository.set(<string>info.email, token);
+    });
 
-    return axios
-        .request<Token>({
-            method: 'POST',
-            url: 'https://oauth2.googleapis.com/token',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            data: {
-                client_id: clientId,
-                client_secret: clientSecret,
-                refresh_token: refreshToken,
-                grant_type: 'refresh_token',
-            },
-        })
-        .then((response) => response.data);
+    return client;
 };
 
-export const getAuthClient = async (refreshToken: string) => {
-    return getToken(refreshToken).then(({ access_token }) => {
-        const client = axios.create({
-            headers: {
-                Authorization: `Bearer ${access_token}`,
-                'Content-Type': 'application/json',
-            },
-        });
+export const getAuthorizationURL = () => {
+    const scope = ['email', 'https://www.googleapis.com/auth/business.manage'];
+    return oauth2Client().generateAuthUrl({ scope, access_type: 'offline', prompt: 'consent' });
+};
 
-        axiosThrottle.use(axios, { requestsPerSecond: 5 });
+export const exchangeCodeForToken = async (code: string) => {
+    const { tokens: token } = await oauth2Client().getToken(code);
+    return token;
+};
 
-        return client;
-    });
+export const getClient = async (accountId: string) => {
+    const existingToken = (await AccountRepository.getOne(accountId)).data()!;
+    const client = oauth2Client();
+    client.setCredentials(existingToken);
+    return client;
 };

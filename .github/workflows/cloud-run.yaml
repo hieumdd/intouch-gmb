@@ -1,0 +1,65 @@
+name: Cloud Run
+
+on:
+  push:
+  workflow_dispatch:
+
+concurrency: ${{ github.ref }}-${{ github.workflow }}
+
+env:
+  GCP_SA: integration-1@intouch-vet.iam.gserviceaccount.com
+  IMAGE: us-docker.pkg.dev/intouch-vet/docker-1/intouch-gmb:${{ github.ref_name }}
+  SERVICE_NAME: intouch-gmb-${{ github.ref_name }}
+
+jobs:
+  build-image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - run: gcloud auth configure-docker us-docker.pkg.dev
+
+      - uses: docker/build-push-action@v4
+        with:
+          tags: ${{ env.IMAGE }}
+          push: true
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-image
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - id: deploy
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: ${{ env.SERVICE_NAME }}
+          image: ${{ env.IMAGE }}
+          timeout: 300s
+          secrets: |
+            GOOGLE_CLIENT_ID=GOOGLE_CLIENT_ID:latest
+            GOOGLE_CLIENT_SECRET=GOOGLE_CLIENT_SECRET:latest
+          flags: --allow-unauthenticated
+
+      - run: gcloud config set run/region us-central1
+
+      - run: |-
+          gcloud run services update ${{ env.SERVICE_NAME }} \
+            --update-env-vars=PUBLIC_URL=${{ steps.deploy.outputs.url }}
+
+      - run: |-
+          gcloud run services add-iam-policy-binding ${{ env.SERVICE_NAME }} \
+            --member="allUsers" \
+            --role="roles/run.invoker"

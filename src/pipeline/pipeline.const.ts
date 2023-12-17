@@ -13,6 +13,7 @@ export const Location: Pipeline = {
             { name: 'name', type: 'STRING' },
             { name: 'title', type: 'STRING' },
             { name: 'storeCode', type: 'STRING' },
+            { name: 'locationId', type: 'STRING' },
             {
                 name: 'storefrontAddress',
                 type: 'RECORD',

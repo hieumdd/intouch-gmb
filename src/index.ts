@@ -1,25 +1,47 @@
-import { http } from '@google-cloud/functions-framework';
 import express from 'express';
+import bodyParser from 'body-parser';
 
 import { logger } from './logging.service';
+import { exchangeCodeForToken, getAuthorizationURL } from './google-my-business/auth/auth.service';
+import { CallbackQuerySchema } from './google-my-business/auth/auth.request.dto';
 import * as pipelines from './pipeline/pipeline.const';
-import {
-    createLocationPipelines,
-    runLocationPipeline,
-    runInsightPipeline,
-    runReviewPipeline,
-} from './pipeline/pipeline.service';
-import {
-    RunLocationPipelineBodySchema,
-    RunInsightPipelineBodySchema,
-    RunReviewPipelineBodySchema,
-} from './pipeline/pipeline.request.dto';
+import { initiatePipelines, runLocationPipeline } from './pipeline/pipeline.service';
+import { RunLocationPipelineBodySchema } from './pipeline/pipeline.request.dto';
+
+['SIGINT', 'SIGTERM'].forEach((signal) => {
+    process.on(signal, () => {
+        logger.info({ action: 'interupt' });
+        process.exit(0);
+    });
+});
 
 const app = express();
 
-app.use(({ headers, path, body }, _, next) => {
-    logger.info({ headers, path, body });
+app.use(bodyParser.json());
+
+app.use(({ method, path, body }, res, next) => {
+    logger.info({ method, path, body });
+
+    res.on('finish', () => {
+        logger.info({ method, path, body, status: res.statusCode });
+    });
+
     next();
+});
+
+app.get('/authorize', (_, res) => {
+    res.status(301).redirect(getAuthorizationURL());
+});
+
+app.get('/authorize/callback', ({ query }, res) => {
+    CallbackQuerySchema.validateAsync(query, { stripUnknown: true })
+        .then(({ code }) => {
+            exchangeCodeForToken(code).then((token) => res.status(200).json({ token }));
+        })
+        .catch((error) => {
+            logger.warn({ error });
+            res.status(400).json({ error });
+        });
 });
 
 app.post(`/${pipelines.Location.route}`, ({ body }, res) => {
@@ -38,40 +60,8 @@ app.post(`/${pipelines.Location.route}`, ({ body }, res) => {
         });
 });
 
-app.post(`/${pipelines.Insight.route}`, ({ body }, res) => {
-    RunInsightPipelineBodySchema.validateAsync(body)
-        .then((options) => {
-            runInsightPipeline(options)
-                .then((result) => res.status(200).json({ result }))
-                .catch((error) => {
-                    logger.error({ error });
-                    res.status(500).json({ error });
-                });
-        })
-        .catch((error) => {
-            logger.warn({ error });
-            res.status(400).json({ error });
-        });
-});
-
-app.post(`/${pipelines.Review.route}`, ({ body }, res) => {
-    RunReviewPipelineBodySchema.validateAsync(body)
-        .then((options) => {
-            runReviewPipeline(options)
-                .then((result) => res.status(200).json({ result }))
-                .catch((error) => {
-                    logger.error({ error });
-                    res.status(500).json({ error });
-                });
-        })
-        .catch((error) => {
-            logger.warn({ error });
-            res.status(400).json({ error });
-        });
-});
-
 app.post(`/`, (_, res) => {
-    createLocationPipelines()
+    initiatePipelines()
         .then((result) => res.status(200).json({ result }))
         .catch((error) => {
             logger.error({ error });
@@ -79,4 +69,4 @@ app.post(`/`, (_, res) => {
         });
 });
 
-http('main', app);
+app.listen(8080);
