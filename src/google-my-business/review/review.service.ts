@@ -13,7 +13,7 @@ export const getReviews = async (client: OAuth2Client, options: GetReviewsOption
     const { accountId, locationId } = options;
 
     const _get = async (pageToken?: string): Promise<Review[]> => {
-        const { reviews, nextPageToken } = await client
+        const { reviews = [], nextPageToken } = await client
             .request<{ reviews: Review[]; nextPageToken?: string }>({
                 method: 'GET',
                 url: `https://mybusiness.googleapis.com/v4/accounts/${accountId}/locations/${locationId}/reviews`,
@@ -22,7 +22,7 @@ export const getReviews = async (client: OAuth2Client, options: GetReviewsOption
             .then((response) => response.data)
             .catch((error) => {
                 if (error instanceof GaxiosError && error.status === 403) {
-                    logger.warn({ fn: 'getInsights', status: error.status, locationId });
+                    logger.warn({ fn: 'getReviews', status: error.status, locationId });
                     return { reviews: [], nextPageToken: undefined };
                 }
                 throw error;
