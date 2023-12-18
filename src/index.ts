@@ -1,7 +1,6 @@
 import express, { NextFunction, Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import Joi from 'joi';
-
 import { ValidatedRequest, createValidator } from 'express-joi-validation';
 
 import { logger } from './logging.service';
@@ -67,7 +66,6 @@ app.use((error: any, req: Request, res: Response, next: NextFunction) => {
         res.status(400).json({ error: error.error });
         return;
     }
-
     logger.error({ error });
     res.status(500).json({ error });
 });
