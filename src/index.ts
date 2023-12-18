@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import { ValidatedRequest, createValidator } from 'express-joi-validation';
 
@@ -17,7 +17,7 @@ import { RunLocationPipelineRequest, RunLocationPipelineBodySchema } from './pip
 });
 
 const app = express();
-const validator = createValidator({ joi: { stripUnknown: true } });
+const validator = createValidator({ passError: true, joi: { stripUnknown: true } });
 
 app.use(bodyParser.json());
 
@@ -36,36 +36,38 @@ app.get('/authorize', (_, res) => {
 app.get(
     '/authorize/callback',
     validator.query(CallbackQuerySchema),
-    ({ query: { code } }: ValidatedRequest<CallbackQueryRequest>, res) => {
+    ({ query: { code } }: ValidatedRequest<CallbackQueryRequest>, res, next) => {
         exchangeCodeForToken(code)
             .then((token) => res.status(200).json({ token }))
-            .catch((error) => {
-                logger.error({ error });
-                res.status(500).json({ error });
-            });
+            .catch(next);
     },
 );
 
 app.post(
     `/${pipelines.Location.route}`,
     validator.body(RunLocationPipelineBodySchema),
-    ({ body }: ValidatedRequest<RunLocationPipelineRequest>, res) => {
+    ({ body }: ValidatedRequest<RunLocationPipelineRequest>, res, next) => {
         runLocationPipeline(body)
             .then((result) => res.status(200).json({ result }))
-            .catch((error) => {
-                logger.error({ error });
-                res.status(500).json({ error });
-            });
+            .catch(next);
     },
 );
 
-app.post(`/`, (_, res) => {
+app.post(`/`, (_, res, next) => {
     initiatePipelines()
         .then((result) => res.status(200).json({ result }))
-        .catch((error) => {
-            logger.error({ error });
-            res.status(500).json({ error });
-        });
+        .catch(next);
+});
+
+app.use((error: any, req: Request, res: Response, next: NextFunction) => {
+    if (error.error?.isJoi) {
+        logger.warn({ error: error.error });
+        res.status(400).json({ error: error.error });
+        return;
+    }
+
+    logger.error({ error });
+    res.status(500).json({ error });
 });
 
 app.listen(8080);

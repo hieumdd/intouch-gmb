@@ -7,4 +7,4 @@ export interface CallbackQueryRequest extends ValidatedRequestSchema {
     [ContainerTypes.Query]: CallbackQuery;
 }
 
-export const CallbackQuerySchema = Joi.object<CallbackQuery>({ code: Joi.string() });
+export const CallbackQuerySchema = Joi.object<CallbackQuery>({ code: Joi.string().required() });
