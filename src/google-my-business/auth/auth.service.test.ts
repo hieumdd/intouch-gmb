@@ -8,5 +8,8 @@ it('getAuthorizationURL', () => {
 
 it('getClient`', async () => {
     const accounts = await getAll();
-    return await Promise.all(accounts.map((account) => getClient(account.id)));
+    return await Promise.all(accounts.map((account) => getClient(account.id))).catch((error) => {
+        console.error(error);
+        throw error;
+    });
 });

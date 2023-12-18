@@ -1,7 +1,7 @@
 import { runLocationPipeline, initiatePipelines } from './pipeline.service';
 
 it('initiatePipelines', async () => {
-    return initiatePipelines().catch((error) => {
+    return await initiatePipelines().catch((error) => {
         console.error(error);
         throw error;
     });
@@ -14,7 +14,7 @@ it('pipeline/location', async () => {
         locationId: '9819420616193399205',
     };
 
-    return runLocationPipeline(options)
+    return await runLocationPipeline(options)
         .then(([insights, reviews]) => {
             expect(insights).toBeGreaterThanOrEqual(0);
             expect(reviews).toBeGreaterThanOrEqual(0);
