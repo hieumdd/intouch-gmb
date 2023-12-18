@@ -20,7 +20,11 @@ export const oauth2Client = () => {
 };
 
 export const getAuthorizationURL = () => {
-    const scope = ['email', 'https://www.googleapis.com/auth/business.manage'];
+    const scope = [
+        'openid',
+        'https://www.googleapis.com/auth/userinfo.email',
+        'https://www.googleapis.com/auth/business.manage',
+    ];
     return oauth2Client().generateAuthUrl({ scope, access_type: 'offline', prompt: 'consent' });
 };
 
